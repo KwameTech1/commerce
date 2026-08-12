@@ -1,6 +1,6 @@
 import { GridTileImage } from "components/grid/tile";
-import { getCollectionProducts } from "lib/shopify";
-import type { Product } from "lib/shopify/types";
+import { getCollectionProducts } from "lib/data";
+import type { Product } from "lib/types";
 import Link from "next/link";
 
 function ThreeItemGridItem({
@@ -40,6 +40,8 @@ function ThreeItemGridItem({
             title: item.title as string,
             amount: item.priceRange.maxVariantPrice.amount,
             currencyCode: item.priceRange.maxVariantPrice.currencyCode,
+            rating: item.rating,
+            ratingCount: item.ratingCount,
           }}
         />
       </Link>

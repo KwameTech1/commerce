@@ -1,61 +1,70 @@
 import CartModal from "components/cart/modal";
-import LogoSquare from "components/logo-square";
-import { getMenu } from "lib/shopify";
-import { Menu } from "lib/shopify/types";
+import { AccountLink } from "components/account/account-link";
+import { WishlistLink } from "components/wishlist/wishlist-link";
+import { getCollections } from "lib/data";
+import { SITE_NAME } from "lib/config";
 import Link from "next/link";
 import { Suspense } from "react";
 import MobileMenu from "./mobile-menu";
 import Search, { SearchSkeleton } from "./search";
 
-const { SITE_NAME } = process.env;
-
 export async function Navbar() {
-  const menu = await getMenu("next-js-frontend-header-menu");
+  const collections = await getCollections();
+  const topLevel = collections.filter(
+    (collection) => collection.parent === null,
+  );
 
   return (
-    <nav className="relative flex items-center justify-between p-4 lg:px-6">
-      <div className="block flex-none md:hidden">
-        <Suspense fallback={null}>
-          <MobileMenu menu={menu} />
-        </Suspense>
-      </div>
-      <div className="flex w-full items-center">
-        <div className="flex w-full md:w-1/3">
+    <header className="sticky top-0 z-40 bg-neutral-900 text-white">
+      <div className="mx-auto flex max-w-(--breakpoint-2xl) items-center gap-3 px-4 py-2.5">
+        <div className="flex flex-none items-center gap-3">
+          <Suspense fallback={null}>
+            <MobileMenu menu={collections} />
+          </Suspense>
           <Link
             href="/"
             prefetch={true}
-            className="mr-2 flex w-full items-center justify-center md:w-auto lg:mr-6"
+            className="flex items-center rounded-sm px-1 font-bold"
           >
-            <LogoSquare />
-            <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
+            <span className="text-xl font-extrabold tracking-tight">
               {SITE_NAME}
-            </div>
+            </span>
           </Link>
-          {menu.length ? (
-            <ul className="hidden gap-6 text-sm md:flex md:items-center">
-              {menu.map((item: Menu) => (
-                <li key={item.title}>
-                  <Link
-                    href={item.path}
-                    prefetch={true}
-                    className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
         </div>
-        <div className="hidden justify-center md:flex md:w-1/3">
+
+        <div className="hidden flex-1 md:block">
           <Suspense fallback={<SearchSkeleton />}>
             <Search />
           </Suspense>
         </div>
-        <div className="flex justify-end md:w-1/3">
+
+        <div className="flex flex-none items-center gap-4">
+          <AccountLink className="text-white" />
+          <WishlistLink className="text-white" />
           <CartModal />
         </div>
       </div>
-    </nav>
+
+      <div className="hidden items-center gap-5 bg-neutral-800 px-4 py-1.5 text-sm md:flex lg:px-6">
+        <nav className="flex items-center gap-4">
+          {topLevel.map((collection) => (
+            <Link
+              key={collection.handle}
+              href={collection.path}
+              prefetch={true}
+              className="rounded-sm px-1 text-neutral-300 hover:text-white"
+            >
+              {collection.title}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      <div className="px-4 pb-3 pt-1 md:hidden">
+        <Suspense fallback={<SearchSkeleton />}>
+          <Search />
+        </Suspense>
+      </div>
+    </header>
   );
 }

@@ -1,4 +1,4 @@
-import { getCollectionProducts } from "lib/shopify";
+import { getCollectionProducts } from "lib/data";
 import Link from "next/link";
 import { GridTileImage } from "./grid/tile";
 
@@ -31,6 +31,8 @@ export async function Carousel() {
                   title: product.title,
                   amount: product.priceRange.maxVariantPrice.amount,
                   currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+                  rating: product.rating,
+                  ratingCount: product.ratingCount,
                 }}
                 src={product.featuredImage?.url}
                 fill

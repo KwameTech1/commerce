@@ -2,9 +2,10 @@ import { GridTileImage } from "components/grid/tile";
 import Footer from "components/layout/footer";
 import { Gallery } from "components/product/gallery";
 import { ProductDescription } from "components/product/product-description";
+import { ReviewsSection } from "components/product/reviews-section";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
-import { getProduct, getProductRecommendations } from "lib/shopify";
-import type { Image } from "lib/shopify/types";
+import { getProduct, getProductRecommendations } from "lib/data";
+import type { Image } from "lib/types";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -58,9 +59,21 @@ export default async function ProductPage(props: {
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `/product/${product.handle}`,
     name: product.title,
     description: product.description,
     image: product.featuredImage.url,
+    sku: product.id,
+    ...(product.rating > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating.toFixed(1),
+            reviewCount: product.ratingCount,
+            bestRating: 5,
+          },
+        }
+      : {}),
     offers: {
       "@type": "AggregateOffer",
       availability: product.availableForSale
@@ -69,6 +82,7 @@ export default async function ProductPage(props: {
       priceCurrency: product.priceRange.minVariantPrice.currencyCode,
       highPrice: product.priceRange.maxVariantPrice.amount,
       lowPrice: product.priceRange.minVariantPrice.amount,
+      offerCount: 1,
     },
   };
 
@@ -105,6 +119,9 @@ export default async function ProductPage(props: {
         </div>
         <RelatedProducts id={product.id} />
       </div>
+      <div className="mx-auto max-w-(--breakpoint-2xl) px-4">
+        <ReviewsSection handle={product.handle} reviews={product.reviews} />
+      </div>
       <Footer />
     </>
   );
@@ -135,6 +152,8 @@ async function RelatedProducts({ id }: { id: string }) {
                   title: product.title,
                   amount: product.priceRange.maxVariantPrice.amount,
                   currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+                  rating: product.rating,
+                  ratingCount: product.ratingCount,
                 }}
                 src={product.featuredImage?.url}
                 fill

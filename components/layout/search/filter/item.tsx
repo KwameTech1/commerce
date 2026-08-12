@@ -38,10 +38,18 @@ function SortFilterItem({ item }: { item: SortFilterItem }) {
   const searchParams = useSearchParams();
   const active = searchParams.get("sort") === item.slug;
   const q = searchParams.get("q");
+  const category = searchParams.get("category");
+  const minPrice = searchParams.get("minPrice");
+  const maxPrice = searchParams.get("maxPrice");
+  const inStock = searchParams.get("inStock");
   const href = createUrl(
     pathname,
     new URLSearchParams({
       ...(q && { q }),
+      ...(category && { category }),
+      ...(minPrice && { minPrice }),
+      ...(maxPrice && { maxPrice }),
+      ...(inStock && { inStock }),
       ...(item.slug && item.slug.length && { sort: item.slug }),
     }),
   );
