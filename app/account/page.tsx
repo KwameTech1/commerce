@@ -7,7 +7,7 @@ import clsx from "clsx";
 import { toast } from "sonner";
 import type { Order, User } from "lib/types";
 import { getOrdersForUser, markOrderPaid } from "lib/persistence/orders";
-import { EVERSEND_PAYMENT_TAG_URL } from "lib/config";
+import { EVERSEND_PAYMENT_TAG_URL, IS_DEFAULT_PAYMENT_TAG } from "lib/config";
 import {
   AUTH_EVENT,
   MIN_PASSWORD_LENGTH,
@@ -58,6 +58,16 @@ function PendingPaymentPanel({
 
   return (
     <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950">
+      {IS_DEFAULT_PAYMENT_TAG ? (
+        <p className="mb-3 text-xs font-medium">
+          Note: the store&apos;s payment tag is not configured — this demo link
+          does not lead to a real payment page. Set{" "}
+          <code className="rounded bg-white/60 px-1 dark:bg-black/40">
+            EVERSEND_PAYMENT_TAG_URL
+          </code>{" "}
+          in <code>.env.local</code>.
+        </p>
+      ) : null}
       <div className="overflow-hidden rounded-md border border-neutral-300 dark:border-neutral-700">
         <iframe
           src={EVERSEND_PAYMENT_TAG_URL}

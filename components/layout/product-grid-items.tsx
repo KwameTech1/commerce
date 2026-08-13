@@ -15,7 +15,7 @@ export default function ProductGridItems({
         <Grid.Item key={product.handle} className="animate-fadeIn">
           <div className="group relative">
             <Link
-              className="relative inline-block h-full w-full"
+              className="relative block h-full w-full"
               href={`/product/${product.handle}`}
               prefetch={true}
             >

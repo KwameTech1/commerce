@@ -74,9 +74,14 @@ pnpm build
 ## Payments
 
 Checkout embeds the Eversend payment tag via `EVERSEND_PAYMENT_TAG_URL` in
-`lib/config.ts` (default `https://eversend.me/maxcards`). No Eversend API keys
-or webhooks are used; payment confirmation is customer-asserted through the
-"I've completed payment" button, after which the order is marked as paid.
+`lib/config.ts`, overridable with the same-named variable in `.env.local`
+(see [`.env.example`](.env.example)). The built-in default
+(`https://eversend.me/maxcards`) is a demo placeholder and does not lead to a
+real payment page — the checkout shows a configuration warning until you set
+your own Eversend tag (create one at [eversend.me](https://eversend.me)). No
+Eversend API keys or webhooks are used; payment confirmation is
+customer-asserted through the "I've completed payment" button, after which the
+order is marked as paid.
 
 ## Deployment
 

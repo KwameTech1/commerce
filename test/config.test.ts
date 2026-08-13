@@ -24,4 +24,15 @@ describe("config defaults", () => {
 
     vi.unstubAllEnvs();
   });
+
+  it("honors EVERSEND_PAYMENT_TAG_URL when set", async () => {
+    vi.stubEnv("EVERSEND_PAYMENT_TAG_URL", "https://eversend.me/mytag");
+    vi.resetModules();
+
+    const fresh = await import("lib/config");
+    expect(fresh.EVERSEND_PAYMENT_TAG_URL).toBe("https://eversend.me/mytag");
+    expect(fresh.IS_DEFAULT_PAYMENT_TAG).toBe(false);
+
+    vi.unstubAllEnvs();
+  });
 });

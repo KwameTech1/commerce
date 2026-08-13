@@ -3,7 +3,9 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-import { LoadMore } from "components/search/load-more";
+import Grid from "components/grid";
+import ProductGridItems from "components/layout/product-grid-items";
+import { Pagination } from "components/search/pagination";
 import { SearchSidebar } from "components/search/sidebar";
 import { CategoryTree } from "components/layout/search/category-tree";
 import { Facets } from "components/layout/search/facets";
@@ -11,6 +13,8 @@ import FilterList from "components/layout/search/filter";
 import { defaultSort, sorting } from "lib/constants";
 import type { ProductFilters } from "lib/data";
 import Link from "next/link";
+
+const PAGE_SIZE = 12;
 
 export async function generateMetadata(props: {
   params: Promise<{ collection: string }>;
@@ -67,6 +71,9 @@ export default async function CategoryPage(props: {
     reverse,
     filters,
   });
+  const page = Math.max(1, Number(queryParams.page) || 1);
+  const start = (page - 1) * PAGE_SIZE;
+  const visible = products.slice(start, start + PAGE_SIZE);
 
   return (
     <div className="flex flex-col gap-8 py-4 md:flex-row">
@@ -98,7 +105,18 @@ export default async function CategoryPage(props: {
         {products.length === 0 ? (
           <p className="py-3 text-lg">No products found in this collection</p>
         ) : (
-          <LoadMore products={products} />
+          <>
+            <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              <ProductGridItems products={visible} />
+            </Grid>
+            <Pagination
+              path={collection.path}
+              params={queryParams}
+              page={page}
+              pageSize={PAGE_SIZE}
+              totalItems={products.length}
+            />
+          </>
         )}
       </div>
       <div className="order-none flex-none md:order-last md:w-[125px]">

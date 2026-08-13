@@ -20,20 +20,35 @@ and payments are embedded via an Eversend iframe.
   `app/api/revalidate/` was removed; do not recreate it.
 - **Do not commit secrets.** No API keys, tokens, or `.env` files.
 - **Payments are never verified server-side.** The Eversend payment tag is a
-  static iframe link (`lib/config.ts` → `EVERSEND_PAYMENT_TAG_URL`). Payment
-  confirmation is customer-asserted; there is deliberately no webhook.
+  static iframe link (`lib/config.ts` → `EVERSEND_PAYMENT_TAG_URL`, overridable
+  via env; the built-in default is a demo placeholder and the checkout shows a
+  configuration warning while it's in use). Payment confirmation is
+  customer-asserted; there is deliberately no webhook.
 
 ## Commands
 
-| Command               | Purpose                                   |
-| --------------------- | ----------------------------------------- |
-| `pnpm dev`            | Start dev server (Turbopack)              |
-| `pnpm build`          | Production build — acts as the type check |
-| `pnpm start`          | Serve the production build                |
-| `pnpm prettier`       | Format all files                          |
-| `pnpm prettier:check` | Verify formatting                         |
-| `pnpm test`           | Run the Vitest unit test suite            |
-| `pnpm test:watch`     | Run Vitest in watch mode                  |
+| Command                       | Purpose                                   |
+| ----------------------------- | ----------------------------------------- |
+| `pnpm setup`                  | Install deps, clean `.next`, start dev    |
+| `pnpm dev`                    | Start dev server (webpack)                |
+| `pnpm build`                  | Production build — acts as the type check |
+| `pnpm start`                  | Serve the production build                |
+| `pnpm prettier`               | Format all files                          |
+| `pnpm prettier:check`         | Verify formatting                         |
+| `pnpm test`                   | Run the Vitest unit test suite            |
+| `pnpm test:watch`             | Run Vitest in watch mode                  |
+| `node scripts/clean-next.mjs` | Purge `.next` after a crashed server      |
+
+**Dev-server rules (learned the hard way):**
+
+- **Never run `pnpm build` while `pnpm dev` is running.** The build rewrites
+  `.next` (CSS chunks, route manifests) that the dev server serves from —
+  they corrupt each other. Stop dev first.
+- **Never force-kill the dev server mid-write.** Stop it gracefully (Ctrl+C).
+  If it's hung and must be killed, run `node scripts/clean-next.mjs` before
+  restarting, or collection routes will 404 and pages will lose their CSS.
+- If `/search/*` pages 404 or render blank after a crash: stop the server,
+  run `node scripts/clean-next.mjs`, start `pnpm dev` again.
 
 Unit tests live in `test/` (pure logic: data layer, cart, persistence, config,
 search index). **After any change run `pnpm prettier` then `pnpm build`**; the
@@ -99,7 +114,8 @@ changed.
 - Homepage sections live in `app/page.tsx` and `components/home/`.
 - Catalog browsing lives under `app/search/**`, wired with `app/search/layout.tsx`
   (category tree + facets) and `app/search/[collection]/page.tsx`. Grids render
-  through `components/search/load-more.tsx` (client-side "show more" paging).
+  through `components/search/pagination.tsx` (server-side `?page=` paging, 12
+  per page — no client JS required for the grid).
 - Checkout: `app/checkout/page.tsx` + `components/checkout/checkout-form.tsx`
   (shipping stage → create order → Eversend iframe → confirm paid).
 - Receipts: `app/confirmation/[orderId]/page.tsx` reads the order from

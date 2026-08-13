@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { EVERSEND_PAYMENT_TAG_URL } from "lib/config";
+import { EVERSEND_PAYMENT_TAG_URL, IS_DEFAULT_PAYMENT_TAG } from "lib/config";
 import type { Cart, Order } from "lib/types";
 import { createOrder, markOrderPaid } from "lib/persistence/orders";
 import { getCurrentUser } from "lib/persistence/users";
@@ -178,6 +178,22 @@ export function CheckoutForm({ cart }: { cart: Cart }) {
               Pay securely through our payment page. Once you have paid, click
               the button below to confirm your order.
             </p>
+            {IS_DEFAULT_PAYMENT_TAG ? (
+              <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950">
+                <p className="font-semibold">
+                  The store&apos;s payment tag is not configured yet.
+                </p>
+                <p className="mt-1 text-neutral-600 dark:text-neutral-300">
+                  The link below is a demo placeholder and does not lead to a
+                  real payment page. Set{" "}
+                  <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-900">
+                    EVERSEND_PAYMENT_TAG_URL
+                  </code>{" "}
+                  in <code>.env.local</code> to your Eversend tag (see{" "}
+                  <code>.env.example</code>).
+                </p>
+              </div>
+            ) : null}
             <div className="overflow-hidden rounded-lg border border-neutral-300 dark:border-neutral-700">
               <iframe
                 src={EVERSEND_PAYMENT_TAG_URL}
